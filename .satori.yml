@@ -1,0 +1,204 @@
+settings:
+  name: Test hccpf
+  image: python:3.10.12
+
+install:
+  - pip3 install -r requirements.txt --break-system-packages
+  - pip3 install flake8
+
+tests:
+  setParallel: true
+
+  get_shortname:
+    assertStdoutEqual: "hostname\n"
+    hostname:
+      - python3 -m example.get_shortname "hostname"
+
+  get_domain:
+    tld:
+      assertStdoutEqual: "example.com\n"  
+      http_domain:
+        - python3 -m example.get_domain "http://example.com"
+      ftp_domain:
+        - python3 -m example.get_domain "ftp://example.com"
+
+    subdomain:
+      assertStdoutEqual: "www.example.com\n"
+      http_path:
+        - python3 -m example.get_domain "https://www.example.com/path"
+      http_param:
+        - python3 -m example.get_domain "https://www.example.com/path?query=value"
+
+  is_valid_ip:
+    valid:
+      assertStdoutContains: "True"
+      ipv4:
+        - python3 -m example.is_valid_ip "192.168.1.1"
+      ipv6:
+        - python3 -m example.is_valid_ip "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+
+    invalid:
+      assertStdoutContains: "False"
+      ip_value:
+        - python3 -m example.is_valid_ip "256.256.256.256"
+      not_an_ip:
+        - python3 -m example.is_valid_ip "not_an_ip"
+
+  is_valid_ipv4_address:
+    valid:
+      assertStdoutContains: "True"
+      ip:
+        - python3 -m example.is_valid_ipv4_address "192.168.0.1"
+
+    invalid:
+      assertStdoutContains: "False"
+      ip_value:
+        - python3 -m example.is_valid_ipv4_address "256.256.256.256"
+      not_an_ip:
+        - python3 -m example.is_valid_ipv4_address "not_an_ip"
+
+  is_valid_ipv6_address:
+    valid:
+      assertStdoutContains: "True"
+      ip:
+        - python3 -m example.is_valid_ipv6_address "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+
+    invalid:
+      assertStdoutContains: "False"
+      not_an_ip:
+        - python3 -m example.is_valid_ipv6_address "not_an_ip"
+
+  get_ip_version:
+    ipv4:
+      assertStdoutContains: "4"
+      ip:
+        - python3 -m example.get_ip_version "192.168.1.1"
+    ipv6:
+      assertStdoutContains: "6"
+      ip:
+        - python3 -m example.get_ip_version "2001:0db8::1"
+
+    none:
+      assertStdoutContains: "None"
+      not_an_ip:
+        - python3 -m example.get_ip_version "not_an_ip"
+
+  comp_dates:
+    positive:
+      assertStdoutEqual: "60.0\n"
+      run:
+        - python3 -m example.comp_dates "2024-01-01 00:00:00" "2024-01-01 00:01:00"
+
+    negative:
+      assertStdoutEqual: "-60.0\n"
+      run:
+        - python3 -m example.comp_dates "2024-01-01 00:00:00" "2023-12-31 23:59:00"
+
+  sendEmail:
+    invalid:
+      assertReturnCode: 1
+      run:
+        - python3 -m example.sendEmail
+
+  input_validate:
+    valid:
+      assertStdoutEqual: "True\n"
+      username:
+        - python3 -m example.input_validate "test_user" "username"
+      hostname:
+        - python3 -m example.input_validate "hostname" "hostname"
+      int:
+        - python3 -m example.input_validate "1" "int"
+      email:
+        - python3 -m example.input_validate "test@example.com" "email"
+      comment:
+        - python3 -m example.input_validate "this is a comment" "comment"
+      version_name:
+        - python3 -m example.input_validate "1" "version_name"
+      aws_ami_id:
+        - python3 -m example.input_validate "ami-12345678" "aws_ami_id"
+      phone:
+        - python3 -m example.input_validate "49876543210" "phone"
+      phone_us:
+        - python3 -m example.input_validate "+11234567890" "phone_us"
+      phone_intl:
+        - python3 -m example.input_validate "+34 912345678" "phone_intl"
+
+    invalid:
+      assertStdoutEqual: "False\n"
+      username:
+        - python3 -m example.input_validate "user123" "username"
+      hostname:
+        - python3 -m example.input_validate "host.name" "hostname"
+      int:
+        - python3 -m example.input_validate "1.0" "int"
+      email:
+        - python3 -m example.input_validate "test@" "email"
+      comment:
+        - python3 -m example.input_validate "Hola mundo!" "comment"
+      version_name:
+        - python3 -m example.input_validate "v1.0.0+build" "version_name"
+      aws_ami_id:
+        - python3 -m example.input_validate "1" "aws_ami_id"
+      phone:
+        - python3 -m example.input_validate "1" "phone"
+      phone_us:
+        - python3 -m example.input_validate "1" "phone_us"
+      phone_intl:
+        - python3 -m example.input_validate "1" "phone_intl"
+
+  stripComments:
+    - python3 -m example.stripComments 'hola \# chau'
+
+  random:
+    assertStdoutEqual: "True\n"
+    id:
+      - /bin/bash -c '[[ $(python3 -m example.random_id) =~ ^[[:alnum:]]{8,16}$ ]] && echo "True"'
+    password:
+      - /bin/bash -c '[[ $(python3 -m example.random_password) =~ ^[[:alnum:]]{8,16}$ ]] && echo "True"'
+
+  ping_host:
+      - python3 -m example.ping_host "localhost"
+
+  get_dns_records:
+      - python3 -m example.get_dns_records "google.com"
+
+  check_port:
+      - python3 -m example.check_port "localhost" "80"
+
+  get_subnet_info:
+      - python3 -m example.get_subnet_info "192.168.1.0/24"
+
+  check_url_status:
+      - python3 -m example.check_url_status "https://www.google.com"
+
+  resolve_hostname:
+      - python3 -m example.resolve_hostname "google.com"
+
+  encode_decode:
+      - python3 -m example.string_decode $(python3 -m example.string_encode "Hello World")
+
+  ValidateEmail:
+    - python3 -m example.ValidateEmail "test@example.com"
+
+  twolists_to_dictionary:
+    - python3 -m example.twolists_to_dictionary '["a", "b", "c"]' '[2, 3, 4]'
+
+  validate_time_format:
+    valid:
+      assertStdoutContains: "True"
+      hours_and_minutes:
+        - python3 -m example.validate_time_format "12:34"
+    invalid:
+      assertStdoutContains: "False"
+      hours:
+        - python3 -m example.validate_time_format "25:00"
+      minutes:
+        - python3 -m example.validate_time_format "12:60"
+      hours_and_minutes:
+        - python3 -m example.validate_time_format "99:99"
+
+  flake8:
+    assertStdout: False
+    run:
+      - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
