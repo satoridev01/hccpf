@@ -1,3 +1,0 @@
-pycrypto
-simple-crypt
-git+https://github.com/hernancollazo/hccpf.git@main

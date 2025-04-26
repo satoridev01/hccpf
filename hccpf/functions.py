@@ -139,7 +139,7 @@ def string_decode(crypt_pass, my_cipher):
 def ValidateEmail(email):
     """ is a valid email address ?"""
     if len(email) > 7:
-        if re.match("^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", email) != None:
+        if re.match("^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", email) is not None:
             return 1
     return 0
 
@@ -258,7 +258,7 @@ def get_dns_records(domain: str, record_type: str = 'A') -> List[str]:
         resolver = dns.resolver.Resolver()
         answers = resolver.resolve(domain, record_type)
         return [str(rdata) for rdata in answers]
-    except Exception as e:
+    except:
         return []
 
 
