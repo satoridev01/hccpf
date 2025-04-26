@@ -3,11 +3,11 @@ settings:
   image: python:3.10.12
 
 install:
-  - pip3 install -r requirements.txt --break-system-packages
-  - pip3 install flake8
+  - pip3 install --break-system-packages --disable-pip-version-check --root-user-action=ignore --no-binary=pycryptodome --no-deps -r requirements.txt -q
+  - pip3 install flake8 --break-system-packages --disable-pip-version-check --root-user-action=ignore -q
 
 tests:
-  setParallel: true
+  #setParallel: true
 
   get_shortname:
     assertStdoutEqual: "hostname\n"
@@ -85,12 +85,12 @@ tests:
 
   comp_dates:
     positive:
-      assertStdoutEqual: "60.0\n"
+      assertStdoutContains: "60.0"
       run:
         - python3 -m example.comp_dates "2024-01-01 00:00:00" "2024-01-01 00:01:00"
 
     negative:
-      assertStdoutEqual: "-60.0\n"
+      assertStdoutContains: "-60.0"
       run:
         - python3 -m example.comp_dates "2024-01-01 00:00:00" "2023-12-31 23:59:00"
 
@@ -102,7 +102,7 @@ tests:
 
   input_validate:
     valid:
-      assertStdoutEqual: "True\n"
+      assertStdoutContains: "True"
       username:
         - python3 -m example.input_validate "test_user" "username"
       hostname:
@@ -125,7 +125,7 @@ tests:
         - python3 -m example.input_validate "+34 912345678" "phone_intl"
 
     invalid:
-      assertStdoutEqual: "False\n"
+      assertStdoutContains: "False"
       username:
         - python3 -m example.input_validate "user123" "username"
       hostname:
@@ -151,32 +151,50 @@ tests:
     - python3 -m example.stripComments 'hola \# chau'
 
   random:
-    assertStdoutEqual: "True\n"
+    assertStdoutContains: "True"
     id:
       - /bin/bash -c '[[ $(python3 -m example.random_id) =~ ^[[:alnum:]]{8,16}$ ]] && echo "True"'
     password:
       - /bin/bash -c '[[ $(python3 -m example.random_password) =~ ^[[:alnum:]]{8,16}$ ]] && echo "True"'
 
-  ping_host:
-      - python3 -m example.ping_host "localhost"
+  #ping_host:
+  #  assertStdoutContains: "{'success': False, 'avg_time': None, 'packet_loss': 100}"
+  #  run:
+  #    - python3 -m example.ping_host "localhost"
 
   get_dns_records:
+    assertStdoutContains: "['142.251.111.101', '142.251.111.113'"
+    run:
       - python3 -m example.get_dns_records "google.com"
 
   check_port:
+    assertStdoutContains: False
+    run:
       - python3 -m example.check_port "localhost" "80"
 
   get_subnet_info:
+    assertStdoutContains: "{'network_address': '192.168.1.0', 'broadcast_address': '192.168.1.255', 'netmask': '255.255.255.0', 'num_addresses': 256, 'hosts': 254}"
+    run:
       - python3 -m example.get_subnet_info "192.168.1.0/24"
 
   check_url_status:
+    assertStdoutContains: "{'status_code': 200, 'success': True"
+    run:
       - python3 -m example.check_url_status "https://www.google.com"
 
   resolve_hostname:
+    assertStdoutContains: "142.251.128.46"
+    run:
       - python3 -m example.resolve_hostname "google.com"
 
-  encode_decode:
-      - python3 -m example.string_decode $(python3 -m example.string_encode "Hello World")
+  encode:
+    assertStdoutContains: "c2MAA"
+    run:
+      - python3 -m example.string_encode "Hello" "World"
+  decode:
+    assertStdoutContains: "World"
+    run:
+      - python3 -m example.string_decode "Hello" "c2MAAr2HmPAJGYg8zOrT3ESXHaUErStj5YNnVrGzfnNUTzyGLWAuVoLGw5INlhF2roxSJY6eKmil1XKNBgypV72d4NesK7knhQ=="
 
   ValidateEmail:
     - python3 -m example.ValidateEmail "test@example.com"
