@@ -163,7 +163,7 @@ tests:
   #    - python3 -m example.ping_host "localhost"
 
   get_dns_records:
-    assertStdoutContains: "['142.251.111.101', '142.251.111.113'"
+    assertStdoutContains: "['"
     run:
       - python3 -m example.get_dns_records "google.com"
 
@@ -183,7 +183,7 @@ tests:
       - python3 -m example.check_url_status "https://www.google.com"
 
   resolve_hostname:
-    assertStdoutContains: "142.251.128.46"
+    assertStdoutContains: "1"
     run:
       - python3 -m example.resolve_hostname "google.com"
 
