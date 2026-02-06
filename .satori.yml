@@ -168,7 +168,7 @@ tests:
       - python3 -m example.get_dns_records "google.com"
 
   check_port:
-    assertStdoutContains: False
+    assertStdoutContains: "False"
     run:
       - python3 -m example.check_port "localhost" "80"
 
